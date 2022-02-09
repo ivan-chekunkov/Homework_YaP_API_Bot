@@ -1,6 +1,6 @@
 RETRY_TIME = 600
 
-method_upload_const = 'file'
+method_upload_const = 'path'
 
 format_log = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
