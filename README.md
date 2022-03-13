@@ -43,7 +43,7 @@ HOMEWORK_STATUSES
 В файле config.py указать значение переменной:
 
 ```python
-method_upload_const = 'path'
+method_upload_const = 'file'
 ```
 
 Нужно создать файл secret.py в каталоге бота и заполнить по образцу:
