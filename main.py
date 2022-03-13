@@ -6,7 +6,11 @@ import sys
 import telegram
 import time
 
-import secret
+try:
+    import secret
+    secret_file_upload = True
+except ImportError:
+    secret_file_upload = False
 from config import HOMEWORK_STATUSES, RETRY_TIME, method_upload_const, \
     format_log
 
@@ -20,6 +24,7 @@ logging.basicConfig(handlers=(file_log, console_out),
 
 def send_message(bot, message, chat_id):
     """Функция отправки сообщения пользователю в Телеграмм."""
+
     try:
         bot.send_message(
             chat_id=chat_id,
@@ -33,6 +38,7 @@ def send_message(bot, message, chat_id):
 
 def get_api_answer(url, current_timestamp, token):
     """Функция получения ответа с Практикум.Домашка."""
+
     current_timestamp = current_timestamp or int(time.time())
     headers = {'Authorization': f'OAuth {token}'}
     payload = {'from_date': current_timestamp}
@@ -46,6 +52,7 @@ def get_api_answer(url, current_timestamp, token):
 
 def parse_status(homework):
     """Функция получения вердикта домашней работы."""
+
     homework_status = homework.get('status')
     homework_name = homework.get('homework_name')
     lesson_name = homework.get('lesson_name')
@@ -67,6 +74,7 @@ def parse_status(homework):
 
 def check_response(response):
     """Функция получения статуса домашней работы."""
+
     if 'homeworks' not in response:
         raise ValueError('В запросе нет ключа "homeworks"')
     homeworks = response['homeworks']
@@ -79,8 +87,9 @@ def check_response(response):
 
 def choise_method_upload_const(method):
     """Функция выбора способа загрузки констант"""
+
     constants = dict()
-    if method.lower() == 'file':
+    if secret_file_upload and method.lower() == 'file':
         constants['PRACTICUM_TOKEN'] = secret.PRACTICUM_TOKEN
         constants['CHAT_ID'] = secret.CHAT_ID
         constants['TELEGRAM_TOKEN'] = secret.TELEGRAM_TOKEN
@@ -95,6 +104,7 @@ def choise_method_upload_const(method):
 
 def checking_constants(constants):
     """Функция проверки загрузки констант."""
+
     for key, value in constants.items():
         if value is None:
             message = 'Не задана переменная: ' + key
@@ -105,6 +115,7 @@ def checking_constants(constants):
 
 def polling(bot, constants):
     """Функция циклического опроса API и информирования пользователя."""
+
     current_timestamp = int(time.time())
     last_error = None
     while True:
@@ -132,6 +143,7 @@ def polling(bot, constants):
 
 def main():
     """Функция создания и запуска бота"""
+
     constants = choise_method_upload_const(method_upload_const)
     if not checking_constants(constants):
         sys.exit()
@@ -140,7 +152,7 @@ def main():
     except Exception as error:
         logging.error('Ошибка при создании бота: ' + str(error))
         sys.exit()
-    send_message(bot, 'Бот запущен', constants['CHAT_ID'])    
+    send_message(bot, 'Бот запущен', constants['CHAT_ID'])
     polling(bot, constants)
 
 
